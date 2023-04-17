@@ -68,37 +68,17 @@ namespace TaskManagement.Controllers
             {
                 return BadRequest("Invalid password");
             }
+            
 
             string token = CreateToken(user);
-            return Ok(token);
+            user.Token= token;
+       
+            return Ok(user);
         }
 
 
 
-        //task controller
-        //    userRegistration 
-        [HttpPost("Task"),Authorize]
-        public async Task<ActionResult>CreateTask(TaskDto taskDto, int userId)
-        {
-            // Map the TaskDto object to a Task object
-            var task = new Tasks
-            {
-                UserId = userId,
-                Title = taskDto.Title,
-                Description = taskDto.Description,
-                Priority = taskDto.Priority,
-                DueDate = taskDto.DueDate,
-                Status = taskDto.Status,
-                CreationDate = taskDto.CreationDate,
-            };
-
-            // Add the new task to the database
-            await dbContext.Tasks.AddAsync(task);
-            await dbContext.SaveChangesAsync();
-
-            // Return the created task with a 201 Created status code
-            return Ok(task);
-        }
+       
 
 
 
