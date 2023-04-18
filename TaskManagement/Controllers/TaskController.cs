@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Azure.Core;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -69,6 +70,16 @@ namespace TaskManagement.Controllers
         [HttpPost("Task"), Authorize]
         public async Task<ActionResult> CreateTask(TaskDto taskDto, int userId)
         {
+
+
+            // Check if the email already exists in the database
+            var existingUser = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (existingUser == null)
+            {
+                // Return a response indicating that the  is already registered
+                return Conflict("User Not Found");
+            }
+
             // Map the TaskDto object to a Task object
             var task = new Tasks
             {

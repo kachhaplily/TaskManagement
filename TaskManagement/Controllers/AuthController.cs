@@ -38,6 +38,15 @@ namespace TaskManagement.Controllers
         [HttpPost("register")]
         public async Task<IActionResult>Register([FromBody] UserDto request)
         {
+
+            // Check if the email already exists in the database
+            var existingUser = await dbContext.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+            if (existingUser != null)
+            {
+                // Return a response indicating that the email is already registered
+                return Conflict("Email is already registered.");
+            }
+
             CreatePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
             var usern = new User()
             {
@@ -50,12 +59,14 @@ namespace TaskManagement.Controllers
             await dbContext.Users.AddAsync(usern);
             await dbContext.SaveChangesAsync();
 
-          return Ok(usern);
+         
+            
+            return Ok("registration Sucessfully");
         }
 
        // userlogin
         [HttpPost("login")]
-        public async Task <ActionResult> Login([FromBody] UserDto request)
+        public async Task <ActionResult> Login([FromBody] userloginDto request)
         {
 
             var user = await dbContext.Users.FirstOrDefaultAsync(x => x.Email == request.Email);
@@ -127,7 +138,8 @@ namespace TaskManagement.Controllers
         {
             List<Claim> claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Email,user.Email)
+                new Claim(ClaimTypes.Email,user.Email), 
+                
             };
             var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_configuration.GetSection("AppSettings:Token").Value));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);

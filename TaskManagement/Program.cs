@@ -13,7 +13,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddDbContext<TaskApiDbContext>(option => option.UseInMemoryDatabase("UserDb"));
+builder.Services.AddDbContext<TaskApiDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("ContactsApiConnectionString")));
+//builder.Services.AddDbContext<TaskApiDbContext>(option => option.UseInMemoryDatabase("UserDb"));
 builder.Services.AddSwaggerGen(option =>
 {
     option.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
