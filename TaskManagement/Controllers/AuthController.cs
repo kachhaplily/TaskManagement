@@ -36,7 +36,7 @@ namespace TaskManagement.Controllers
 
     //    userRegistration 
         [HttpPost("register")]
-        public async Task<IActionResult>Register(UserDto request)
+        public async Task<IActionResult>Register([FromBody] UserDto request)
         {
             CreatePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
             var usern = new User()
@@ -55,7 +55,7 @@ namespace TaskManagement.Controllers
 
        // userlogin
         [HttpPost("login")]
-        public async Task <ActionResult> Login(UserDto request)
+        public async Task <ActionResult> Login([FromBody] UserDto request)
         {
 
             var user = await dbContext.Users.FirstOrDefaultAsync(x => x.Email == request.Email);
@@ -77,8 +77,22 @@ namespace TaskManagement.Controllers
         }
 
 
+        //userUpdate
+        [HttpPut,Authorize]
+        [Route("{id:int}")]
+        public async Task<ActionResult> UpdateContact([FromRoute] int id, UserUpdateDto userupdate)
+        {
+            var user = await dbContext.Users.FindAsync(id);
+            if (user != null)
+            {
+                user.FirstName = userupdate.FirstName;
+                user.LastName = userupdate.LastName;
+                await dbContext.SaveChangesAsync();
+                return Ok(user);
+            }
+            return NotFound();
+        }
 
-       
 
 
 

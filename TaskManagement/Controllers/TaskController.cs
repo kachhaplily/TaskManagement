@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 using TaskManagement.Data;
 using TaskManagement.Model;
 
@@ -87,6 +88,27 @@ namespace TaskManagement.Controllers
             // Return the created task with a 201 Created status code
             return Ok(task);
         }
+
+
+        //TaskUpdate
+        [HttpPut("updateTask")]
+        public async Task<ActionResult>UpdateTask( int userId, int taskId, TaskupdateDto taskupdate)
+        {
+            var task = await dbContext.Tasks.FirstOrDefaultAsync(x => x.UserId == userId && x.TaskId == taskId);
+
+            if (task != null)
+            {
+                task.Title = taskupdate.Title;
+                task.Description = taskupdate.Description;
+                task.Priority = taskupdate.Priority;
+                task.DueDate = taskupdate.DueDate;
+                task.Status = taskupdate.Status;
+                await dbContext.SaveChangesAsync();
+                return Ok(task);
+            }
+            return NotFound();
+        }
+
 
 
 
