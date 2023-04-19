@@ -14,9 +14,9 @@ namespace TaskManagement.Model
         public int UserId { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
-        public TaskPriority Priority { get; set; }
+        public Enumdata.TaskPriority Priority { get; set; } = Enumdata.TaskPriority.Medium;
         public DateTime DueDate { get; set; }
-        public bool Status { get; set; }
+        public Enumdata.TaskStatus Status { get; set; } = Enumdata.TaskStatus.Todo;
         public DateTime CreationDate { get; set; }
 
 

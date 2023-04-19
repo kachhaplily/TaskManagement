@@ -12,11 +12,11 @@ namespace TaskManagement.Model
         [MinLength(2, ErrorMessage = "your title must be more then 2 characters")]
         public string Description { get; set; }
 
-  
-        public TaskPriority Priority { get; set; }
-    
+
+        public Enumdata.TaskPriority Priority { get; set; } = Enumdata.TaskPriority.Medium;
+
         [FutureDate(ErrorMessage = "Due date must be a future date")]
         public DateTime DueDate { get; set; }
-        public bool Status { get; set; }
+        public Enumdata.TaskStatus Status { get; set; } = Enumdata.TaskStatus.Todo;
     }
 }

@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace TaskManagement.Model
 {
@@ -16,7 +18,7 @@ namespace TaskManagement.Model
         public string Description { get; set; }
 
         [Required]
-        public TaskPriority Priority { get; set; }
+        public Enumdata.TaskPriority Priority { get; set; } = Enumdata.TaskPriority.Medium;
 
         [Required]
         [FutureDate(ErrorMessage = "Due date must be a future date")]
@@ -25,7 +27,7 @@ namespace TaskManagement.Model
         [Required]
         public DateTime CreationDate { get; set; } = DateTime.Now.Date;
 
-        public bool Status { get; set; }
+        public Enumdata.TaskStatus Status { get; set; }=Enumdata.TaskStatus.Todo;
 
 
 
@@ -42,12 +44,12 @@ namespace TaskManagement.Model
         }
 
         //task  priority enum
-        public  enum TaskPriority
-        {
-            Low,
-            Medium,
-            High
-        }
+
+
+       
+
+
+        
 
     }
 }

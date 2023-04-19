@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using TaskManagement.Data;
 using TaskManagement.Model;
+using static TaskManagement.Model.TaskDto;
 
 namespace TaskManagement.Controllers
 {
@@ -48,7 +49,7 @@ namespace TaskManagement.Controllers
 
         //Task delete
 
-        [HttpDelete("{userId}/tasks/{taskId}")]
+        [HttpDelete("{userId}/tasks/{taskId}"),Authorize]
         public async Task<ActionResult> DeleteTask(int userId, int taskId)
         {
             var task = await dbContext.Tasks.FirstOrDefaultAsync(x => x.UserId == userId && x.TaskId == taskId);
@@ -102,7 +103,7 @@ namespace TaskManagement.Controllers
 
 
         //TaskUpdate
-        [HttpPut("updateTask")]
+        [HttpPut("updateTask"), Authorize]
         public async Task<ActionResult>UpdateTask( int userId, int taskId, TaskupdateDto taskupdate)
         {
             var task = await dbContext.Tasks.FirstOrDefaultAsync(x => x.UserId == userId && x.TaskId == taskId);
