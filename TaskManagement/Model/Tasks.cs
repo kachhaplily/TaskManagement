@@ -18,7 +18,7 @@ namespace TaskManagement.Model
         public DateTime DueDate { get; set; }
         public Enumdata.TaskStatus Status { get; set; } = Enumdata.TaskStatus.Todo;
         public DateTime CreationDate { get; set; }
-
+        public virtual User User { get; set; } // Navigation property
 
 
     }

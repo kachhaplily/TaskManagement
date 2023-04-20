@@ -14,9 +14,7 @@ namespace TaskManagement.Model
      
         public string Email { get; set; } 
    
-        public byte[] PasswordHash { get; set; }
-
-        public byte[] PasswordSalt { get; set; }
+        public string Password { get; set; }
 
         public string? FirstName { get; set; }
    
@@ -24,10 +22,13 @@ namespace TaskManagement.Model
             
         public string? Token { get; set; }
 
-      
+ 
         public string? ResetPasswordToken { get; set; } // Add this property
 
         public DateTime ResetPasswordExpiry { get; set; } // Add this property
 
+        // Other properties
+        // Navigation property
+        public List<Tasks> Tasks { get; set; }
     }
 }

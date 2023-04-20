@@ -55,6 +55,8 @@ namespace TaskManagement.Migrations
 
                     b.HasKey("TaskId");
 
+                    b.HasIndex("UserId");
+
                     b.ToTable("Tasks");
                 });
 
@@ -76,13 +78,9 @@ namespace TaskManagement.Migrations
                     b.Property<string>("LastName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<byte[]>("PasswordHash")
+                    b.Property<string>("Password")
                         .IsRequired()
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<byte[]>("PasswordSalt")
-                        .IsRequired()
-                        .HasColumnType("varbinary(max)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("ResetPasswordExpiry")
                         .HasColumnType("datetime2");
@@ -96,6 +94,22 @@ namespace TaskManagement.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("TaskManagement.Model.Tasks", b =>
+                {
+                    b.HasOne("TaskManagement.Model.User", "User")
+                        .WithMany("Tasks")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("TaskManagement.Model.User", b =>
+                {
+                    b.Navigation("Tasks");
                 });
 #pragma warning restore 612, 618
         }

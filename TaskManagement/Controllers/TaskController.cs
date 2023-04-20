@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 using System.Threading.Tasks;
 using TaskManagement.Data;
 using TaskManagement.Model;
@@ -96,9 +98,10 @@ namespace TaskManagement.Controllers
             // Add the new task to the database
             await dbContext.Tasks.AddAsync(task);
             await dbContext.SaveChangesAsync();
+          
 
             // Return the created task with a 201 Created status code
-            return Ok(task);
+            return Ok("Added into database");
         }
 
 

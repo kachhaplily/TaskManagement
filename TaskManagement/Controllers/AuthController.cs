@@ -11,7 +11,9 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using TaskManagement.Data;
 using TaskManagement.Model;
-
+using TaskManagement.Helper;
+using Org.BouncyCastle.Asn1.Ocsp;
+using TaskManagement.UtlityServices;
 
 namespace TaskManagement.Controllers
 {
@@ -23,15 +25,15 @@ namespace TaskManagement.Controllers
         public static User user = new User();
         private readonly IConfiguration _configuration;
         private readonly TaskApiDbContext dbContext;
-        private readonly string _googleSmtpEmail = "lilykumarikachhap@gmail.com"; // Replace with your actual Google email address
-        private readonly string _googleSmtpPassword = "zbghgycjklabzjcg"; // Replace with your actual Google email password
+        private readonly IEmailService _emailservice;
+        
 
 
-        public AuthController(IConfiguration configuration, TaskApiDbContext dbContext)
+        public AuthController(IConfiguration configuration, TaskApiDbContext dbContext, IEmailService emailService)
         {
             _configuration = configuration;
             this.dbContext = dbContext;
-
+            _emailservice = emailService;
         }
         //   getallthe user
 
@@ -55,12 +57,11 @@ namespace TaskManagement.Controllers
                 return Conflict("Email is already registered.");
             }
 
-            CreatePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
+            
             var usern = new User()
             {
                 Email = request.Email,
-                PasswordHash = passwordHash,
-                PasswordSalt = passwordSalt,
+                Password = PasswordHasher.HashPassword(request.Password),
                 FirstName = request.FirstName,
                 LastName = request.LastName,
             };
@@ -82,11 +83,11 @@ namespace TaskManagement.Controllers
             if (user == null)
             {
                 return BadRequest("user not found");
-            }
-            if (!VerifyPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
+            };
+            if (!PasswordHasher.Verifypassword(request.Password, user.Password))
             {
                 return BadRequest("Invalid password");
-            }
+            };
 
 
             string token = CreateToken(user);
@@ -112,75 +113,63 @@ namespace TaskManagement.Controllers
             return NotFound();
         }
 
-
-
-
-
-
-
-        // Forgot password
-        [HttpPost("forgotpassword")]
-        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto request)
+        //forgotpassword
+        [HttpPost("send-reset-email/{email}")]
+        public async Task<IActionResult> SendEmail(string email)
         {
-            var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
-
-            if (user == null)
+            var user = await dbContext.Users.FirstOrDefaultAsync(a => a.Email == email);
+            if (user is null)
             {
-                // Return a response indicating that the email is not registered
-                return NotFound("Email not found.");
-            }
-
-            // Generate a new password
-            var newPassword = GenerateRandomPassword();
-
-            // Update user's password in the database
-            CreatePasswordHash(newPassword, out byte[] passwordHash, out byte[] passwordSalt);
-            user.PasswordHash = passwordHash;
-            user.PasswordSalt = passwordSalt;
-            await dbContext.SaveChangesAsync();
-
-            // Send password reset email
-            await SendPasswordResetEmail(request.Email, newPassword);
-
-            return Ok("Password reset successful. Please check your email for the new password.");
-        }
-
-        // Helper method to send password reset email
-        private async Task SendPasswordResetEmail(string email, string newPassword)
-        {
-            using (MailMessage mailMessage = new MailMessage())
-            {
-                mailMessage.From = new MailAddress(_googleSmtpEmail);
-                mailMessage.To.Add(email);
-                mailMessage.Subject = "Password Reset";
-                mailMessage.Body = $"Your new password is: {newPassword}";
-
-                using (SmtpClient smtpClient = new SmtpClient("smtp.gmail.com", 587))
+                return NotFound(new
                 {
-                    smtpClient.UseDefaultCredentials = false;
-                    smtpClient.Credentials = new NetworkCredential(_googleSmtpEmail, _googleSmtpPassword);
-                    smtpClient.EnableSsl = true;
-                    smtpClient.DeliveryMethod = SmtpDeliveryMethod.Network;
-                    await smtpClient.SendMailAsync(mailMessage);
-                }
+                    StatusCode = 404,
+                    Message = "Email Dosen't Exist"
+                });
             }
-        }
-
-        // Helper method to generate a random password
-        private string GenerateRandomPassword()
-        {
-            Guid guid = Guid.NewGuid();
-            string guidString = guid.ToString();
-            char[] password = new char[10];
-            Random random = new Random();
-
-            for (int i = 0; i < 10; i++)
+            var tokenBytes = RandomNumberGenerator.GetBytes(64);
+            Console.WriteLine(tokenBytes);
+            var emailToken = Convert.ToBase64String(tokenBytes);
+            user.ResetPasswordToken = emailToken;
+            user.ResetPasswordExpiry = DateTime.Now.AddMinutes(15);
+            string from = _configuration["EmailSettings:From"];
+            var emailModel = new EmailModel(email, "Reset Password!", EmailBody.EmailStringBody(email, emailToken));
+            _emailservice.SendEmail(emailModel);
+            dbContext.Entry(user).State = EntityState.Modified;
+            await dbContext.SaveChangesAsync();
+            return Ok(new
             {
-                password[i] = guidString[random.Next(guidString.Length)];
-            }
-
-            return new string(password);
+                StatusCode = 200,
+                Message = "Email Sent!"
+            });
         }
+
+        //reset password
+        [HttpPost("reset-password")]
+        public async Task <IActionResult> ResetPassword(ResetPasswordDto resetpassword)
+        {
+            var newToken = resetpassword.EmailToken.Replace(" ", "+");
+            var user = await dbContext.Users.FirstOrDefaultAsync(x => x.Email == resetpassword.Email);
+            if(user == null) { return NotFound("user Not found"); }
+            var tokenCode = user.ResetPasswordToken;
+            DateTime emailTokenExpiry = user.ResetPasswordExpiry;
+            if (tokenCode != resetpassword.EmailToken || emailTokenExpiry < DateTime.Now)
+            {
+                return BadRequest("invalid reset link");
+            };
+            user.Password = PasswordHasher.HashPassword(resetpassword.NewPassword);
+            dbContext.Entry(user).State=EntityState.Modified;
+            await dbContext.SaveChangesAsync();
+            return Ok("Password reset sucessfully");
+
+        }
+
+
+
+
+
+        
+       
+        
 
 
 
