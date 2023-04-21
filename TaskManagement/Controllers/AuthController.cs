@@ -93,7 +93,11 @@ namespace TaskManagement.Controllers
             string token = CreateToken(user);
             user.Token = token;
 
-            return Ok(user);
+            return Ok(new
+            {
+                user.Id,
+                user.Token
+            }) ;
         }
 
 
@@ -108,7 +112,14 @@ namespace TaskManagement.Controllers
                 user.FirstName = userupdate.FirstName;
                 user.LastName = userupdate.LastName;
                 await dbContext.SaveChangesAsync();
-                return Ok(user);
+                return Ok(new
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Message = "Update sucessfully",
+                    user.Id,
+                    user.FirstName,
+                    user.LastName
+                }); ;
             }
             return NotFound();
         }
