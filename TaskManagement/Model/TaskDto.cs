@@ -24,7 +24,7 @@ namespace TaskManagement.Model
         [FutureDate(ErrorMessage = "Due date must be a future date")]
         public DateTime DueDate { get; set; }
 
-        [Required]
+  
         public DateTime CreationDate { get; set; } = DateTime.Now.Date;
 
         public Enumdata.TaskStatus Status { get; set; }=Enumdata.TaskStatus.Todo;
@@ -44,12 +44,7 @@ namespace TaskManagement.Model
         }
 
         //task  priority enum
-
-
-       
-
-
-        
+   
 
     }
 }
