@@ -38,8 +38,10 @@ namespace TaskManagement.Model
         {
             public override bool IsValid(object value)
             {
+                DateTime TodayDate = DateTime.Now;
+                DateTime yesterdayDate = TodayDate.AddDays(-1);
                 DateTime date = Convert.ToDateTime(value);
-                return date > DateTime.Now;
+                return date > yesterdayDate;
             }
         }
 

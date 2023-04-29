@@ -96,7 +96,10 @@ namespace TaskManagement.Controllers
             return Ok(new
             {
                 user.Id,
-                user.Token
+                user.Token,
+                user.FirstName,
+               
+
             }) ;
         }
 
@@ -148,7 +151,8 @@ namespace TaskManagement.Controllers
             dbContext.Entry(user).State = EntityState.Modified;
             await dbContext.SaveChangesAsync();
             return Ok(new
-            {
+            {   email=user.Email,
+                resetToken=user.ResetPasswordToken,
                 StatusCode = 200,
                 Message = "Email Sent!"
             });
@@ -175,39 +179,6 @@ namespace TaskManagement.Controllers
         }
 
 
-
-
-
-        
-       
-        
-
-
-
-
-        //create hash password
-
-        private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
-        {
-            using (var hmac = new HMACSHA512())
-            {
-                passwordSalt = hmac.Key;
-                passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
-
-            }
-        }
-        // verify hash password
-
-        private bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
-        {
-            using (var hmac = new HMACSHA512(passwordSalt))
-            {
-                var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
-                return computedHash.SequenceEqual(passwordHash);
-            }
-        }
-
-        //  Token Genration
         private string CreateToken(User user)
         {
             List<Claim> claims = new List<Claim>
@@ -226,6 +197,36 @@ namespace TaskManagement.Controllers
             var jwt = new JwtSecurityTokenHandler().WriteToken(token);
             return jwt;
         }
+
+
+
+
+
+
+        //create hash password
+
+        //private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
+        //{
+        //    using (var hmac = new HMACSHA512())
+        //    {
+        //        passwordSalt = hmac.Key;
+        //        passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+
+        //    }
+        //}
+        // verify hash password
+
+        //private bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
+        //{
+        //    using (var hmac = new HMACSHA512(passwordSalt))
+        //    {
+        //        var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+        //        return computedHash.SequenceEqual(passwordHash);
+        //    }
+        //}
+
+        //  Token Genration
+
 
 
     }

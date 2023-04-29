@@ -38,7 +38,7 @@ namespace TaskManagement.Controllers
 
 
         //task get by UserId
-        [HttpGet("task/{userId}"), Authorize]
+        [HttpGet("alltask/{userId}"), Authorize]
         public async Task<ActionResult<List<Tasks>>> GetTasksByUserId(int userId)
         {
             // Find all tasks associated with the specified user ID
@@ -51,7 +51,7 @@ namespace TaskManagement.Controllers
 
         //Task delete
 
-        [HttpDelete("{userId}/tasks/{taskId}"), Authorize]
+        [HttpDelete("delete/{userId},{taskId}"), Authorize]
         public async Task<ActionResult> DeleteTask(int userId, int taskId)
         {
             var task = await dbContext.Tasks.FirstOrDefaultAsync(x => x.UserId == userId && x.TaskId == taskId);
@@ -70,7 +70,7 @@ namespace TaskManagement.Controllers
 
 
         //    userRegistration 
-        [HttpPost("Task"), Authorize]
+        [HttpPost("register"), Authorize]
         public async Task<ActionResult> CreateTask(TaskDto taskDto, int userId)
         {
 
@@ -106,7 +106,7 @@ namespace TaskManagement.Controllers
 
 
         //TaskUpdate
-        [HttpPut("updateTask/{userId}/tasks/{taskId}"), Authorize]
+        [HttpPut("updateTask/{userId},{taskId}"), Authorize]
         public async Task<ActionResult>UpdateTask( int userId, int taskId, TaskupdateDto taskupdate)
         {
             var task = await dbContext.Tasks.FirstOrDefaultAsync(x => x.UserId == userId && x.TaskId == taskId);

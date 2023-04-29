@@ -5,7 +5,7 @@
         public static string EmailStringBody(string email, string emailToken)
         {
 
-            return $@" <html>
+            return $@"<html>
                 <head>
                 </head>
                 <body>
@@ -14,7 +14,7 @@
              <p> Please tap the button below to choose a new password. </p>
     <a href = ""http://localhost:4200/reset?email={email}&code={emailToken}"" target = ""_blank"" > Reset Your password </a>
 <p>kind Regards <br><br>
-ALtaf Ghori </p>
+by Lily </p>
 </body>
 </html>";
 
